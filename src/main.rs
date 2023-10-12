@@ -3,7 +3,7 @@ use std::net::{SocketAddr, IpAddr};
 use tokio::net::TcpStream;
 use tokio::time::Duration;
 
-const COMMON_PORTS: [u16; 10] = [20, 21, 22, 23, 25, 80, 443, 587, 1433, 8080];
+const COMMON_PORTS: [u16; 15] = [20, 21, 22, 23, 25, 80, 110, 443, 587, 1433, 3389, 5432, 6397, 8080, 27017];
 
 #[tokio::main]
 async fn main() {
@@ -15,7 +15,7 @@ async fn main() {
     }
 
     let base_ip = &args[1][..args[1].len() - 1];
-    println!("Scanning on IP range: {}[1-255]", base_ip);
+    println!("Scanning on IP range: {}[1-255]\nPlease be patient.", base_ip);
 
     let mut handles = vec![];
 
@@ -40,7 +40,7 @@ async fn scan_ip(ip: IpAddr) {
         let addr = SocketAddr::new(ip, port);
         // Use tokio::time::timeout to add a timeout to the TcpStream::connect operation.
         let result = tokio::time::timeout(
-            Duration::from_secs(1),
+            Duration::from_millis(500),
             TcpStream::connect(&addr),
         ).await;
 
@@ -50,7 +50,7 @@ async fn scan_ip(ip: IpAddr) {
     }
 
     if !open_ports.is_empty() {
-        print!("Open ports on {}: ", ip);
+        print!("{}: ", ip);
         for port in &open_ports {
             print!("{} ", port);
         }
